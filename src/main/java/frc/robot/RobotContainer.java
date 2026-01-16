@@ -22,19 +22,30 @@ public class RobotContainer {
 		configureBindings();
 	}
 
-	public void joystickShooting() {
+	public void joystickShootingSeparate() {
 		double flywheelMotorInput = Math.pow(controller.getRightY(), 3);
 		double transportMotorInput = Math.pow(controller.getLeftY(), 3);
 		flywheelMotor.set(flywheelMotorInput);
 		transportMotor.set(transportMotorInput);
 	}
 
-	public Command joystickShootingCommand() {
-		return Commands.run(() -> joystickShooting(), subsystem);
+	public void joystickShootingTogether() {
+		double input = Math.pow(controller.getRightY(), 3);
+		flywheelMotor.set(input);
+		transportMotor.set(-input);
+	}
+
+	public Command defaultJoystickShootingCommand() {
+		return Commands.run(() -> joystickShootingTogether(), subsystem);
+	}
+
+	public Command separateJoystickShootingCommand() {
+		return Commands.run(() -> joystickShootingSeparate(), subsystem);
 	}
 
 	private void configureBindings() {
-		subsystem.setDefaultCommand(joystickShootingCommand());
+		subsystem.setDefaultCommand(defaultJoystickShootingCommand());
+		controller.L2().whileTrue(separateJoystickShootingCommand());
 	}
 
 	public Command getAutonomousCommand() {
